@@ -1,12 +1,17 @@
 import ctypes
 import time
 import random
-import winsound
 import argparse
 import os
 import signal
 import sys
 
+# Try to import the winsound module
+try:
+    import winsound
+except ImportError:
+    winsound = None
+    
 # Load the user32.dll library
 user32 = ctypes.windll.user32
 
@@ -59,8 +64,12 @@ def print_message():
 
 def make_beep():
     # Make a beep sound
-    winsound.Beep(1000, 200)  # Frequency 1000 Hz, Duration 200 ms
-
+    if winsound is not None:
+        try:
+            winsound.Beep(1000, 200)  # Frequency 1000 Hz, Duration 200 ms
+        except RuntimeError:
+            pass  # Ignore the error if the beep can't be played
+    
 def clear_console():
     os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -76,7 +85,7 @@ def prevent_idle(beep=False, interval_seconds=30):
         
         # Countdown timer
         for i in range(interval_seconds, 0, -1):
-            print(f"\rNext event in T-{i} seconds", end="")
+            print(f"\rNext event in T-{i} seconds...", end="")
             time.sleep(1)
         
         # Simulate mouse movement
